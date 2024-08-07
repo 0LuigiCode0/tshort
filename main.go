@@ -4,6 +4,8 @@ import (
 	"flag"
 	"os"
 	"strings"
+
+	"github.com/0LuigiCode0/tshort/internal"
 )
 
 func main() {
@@ -13,9 +15,6 @@ func main() {
 	var intGen string
 
 	inFileName := os.Getenv("GOFILE")
-	if inFileName == "" {
-		inFileName = "test.go"
-	}
 	inPkg := os.Getenv("GOPACKAGE")
 
 	flag.StringVar(&outDir, "outdir", "./mocks", "Папка куда будут генерироваться  файлы, если пусто то создает папку mocks в дериктории файла")
@@ -29,6 +28,6 @@ func main() {
 		intGenNames[s] = struct{}{}
 	}
 
-	f := scan(inFileName, intGenNames)
-	generate(f, outDir, outFileName, outPkg)
+	f := internal.Scan(inFileName, intGenNames)
+	internal.Generate(f, outDir, outFileName, outPkg)
 }

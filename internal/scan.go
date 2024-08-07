@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"go/ast"
@@ -36,7 +36,7 @@ type _func struct {
 	Out      []*base
 }
 
-func scan(fileName string, intNames map[string]struct{}) *file {
+func Scan(fileName string, intNames map[string]struct{}) *file {
 	fs := token.NewFileSet()
 	raw, err := os.ReadFile(fileName)
 	if err != nil {
@@ -77,7 +77,7 @@ func (f *file) scanInterfaces(objs map[string]*ast.Object, intNames map[string]s
 			continue
 		}
 		if v, ok := obj.Decl.(*ast.TypeSpec); ok {
-			generics := f._scanParams(v.TypeParams)
+			generics := f._scanParams(v.TypeParams, "g")
 			if v, ok := v.Type.(*ast.InterfaceType); ok {
 				_interface := &_interface{}
 				_interface.Name = []string{name}
@@ -89,7 +89,7 @@ func (f *file) scanInterfaces(objs map[string]*ast.Object, intNames map[string]s
 	}
 }
 
-func (f *file) _scanParams(typeParams *ast.FieldList) []*base {
+func (f *file) _scanParams(typeParams *ast.FieldList, prefix string) []*base {
 	if typeParams != nil && typeParams.List != nil {
 		params := make([]*base, 0, len(typeParams.List))
 		for i, v := range typeParams.List {
@@ -100,7 +100,7 @@ func (f *file) _scanParams(typeParams *ast.FieldList) []*base {
 				}
 
 			} else {
-				params = append(params, &base{[]string{"v" + strconv.Itoa(i)}, arg})
+				params = append(params, &base{[]string{prefix + strconv.Itoa(i)}, arg})
 			}
 		}
 		return params
@@ -115,9 +115,9 @@ func (f *file) _scanMethods(methods *ast.FieldList) []*_func {
 				for _, name := range method.Names {
 					_func := &_func{}
 					_func.Name = []string{name.Name}
-					_func.Generics = f._scanParams(methodType.TypeParams)
-					_func.In = f._scanParams(methodType.Params)
-					_func.Out = f._scanParams(methodType.Results)
+					_func.Generics = f._scanParams(methodType.TypeParams, "g")
+					_func.In = f._scanParams(methodType.Params, "i")
+					_func.Out = f._scanParams(methodType.Results, "o")
 					funcs = append(funcs, _func)
 				}
 			}

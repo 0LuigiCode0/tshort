@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"log"
@@ -8,7 +8,7 @@ import (
 	"text/template"
 )
 
-func generate(f *file, outDir, outFileName, outPkg string) {
+func Generate(f *file, outDir, outFileName, outPkg string) {
 	err := os.Mkdir(outDir, os.ModeDir)
 	if err != nil && !os.IsExist(err) {
 		log.Fatal(err)
