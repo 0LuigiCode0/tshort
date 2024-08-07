@@ -1,10 +1,8 @@
+<p align="center">
+<img style="vertical-align:right" width="128" height="128"  alt="" src="https://s469vla.storage.yandex.net/rdisk/437d69e71b0b8d00269f3c2fe8098e332caad68c1ac6aea245a68a43537756be/66b40312/eZLdwrKxPcuKfu4_b1Tf1cy1pzAql_jud-4O0NRYyhrvFL1qVm38d9mMOh9HL5ZdMxUXLZaiDSxdu-iLmt317w==?uid=1523954673&filename=test.min.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&owner_uid=1523954673&fsize=102858&hid=16b24dca1f1e72448503ac0e5eb77574&media_type=image&tknv=v2&etag=2fe269af80b352af4b2bea8cb9f022af&ts=61f2043d96880&s=2226420a59ce45ae31e37f23a690dfdb92ebeec58b82e120c24db36efbd0003a&pb=U2FsdGVkX18GEI_nY2MxGE6Z219twwXDT-l17-PAmr2HiwnvqCe5ylXXs8-uni7L0qw_ii7wcHtd7VXnHbHymufFCqPj3KmbDJO9JE6DRYk">
+</p>
 
-# T-Short
-
-<div align="center" >
-    <img style="display: block;margin-left: auto;margin-right: auto;border-radius: 50%;max-width: 100%;"
-        src="https://downloader.disk.yandex.ru/preview/55ac41d1f0e28fbbfcff8258088b1f2a4e45dc0609b16479a27fcbda5f752ae8/66b3be8a/FNlgll3QLyYWlTjxrk3UrJlwZzfo9us_Ml2bwCM5WYrAWA1k79BjP32dWTzjlQqtR6D0dyxMZYdFs3PeDNydYQ%3D%3D?uid=0&filename=5592b65d-a424-4939-98fd-e429a4bfc1af.jpg&disposition=inline&hash=&limit=0&content_type=image%2Fjpeg&owner_uid=0&tknv=v2&size=128x">
-</div>
+<h1 align="center">T-Short</h1>
 
 ## Маленькая либа для написания удобных unit тестов
 
