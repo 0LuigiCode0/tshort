@@ -35,21 +35,21 @@ func TestFoo(t *testing.T) {
 	var wantErr error
 
 	// разбиваем проверяемы код на блоки и записывает их связывая с последующими, тем самым создавая цепочки вызовов
-	ts.AddStage("~init", func() {
+	ts.AddStage("@init", func() {
 		wantB = 0
 		wantErr = nil
 	}, "четное", "нечетное")
 	{
 		ts.AddStage("четное", func() {
 			*a = 4
-		}, "a1.error", "~a1.success")
+		}, "a1.error", "@a1.success")
 		{
 			ts.AddStage("a1.error", func() {
 				wantErr = deferr
 				m.EXPECT().A(a, *a, []byte{}).Return(0, deferr)
 			})
 
-			ts.AddStage("~a1.success", func() {
+			ts.AddStage("@a1.success", func() {
 				m.EXPECT().A(a, *a, []byte{}).Return(0, nil)
 			}, "success")
 		}
@@ -57,14 +57,14 @@ func TestFoo(t *testing.T) {
 		ts.AddStage("нечетное", func() {
 			*a = 3
 			*a2 = *a - 1
-		}, "a2.error", "~a2.success")
+		}, "a2.error", "@a2.success")
 		{
 			ts.AddStage("a2.error", func() {
 				wantErr = deferr
 				m.EXPECT().A(a2, *a2, []byte{}).Return(0, deferr)
 			})
 
-			ts.AddStage("~a2.success", func() {
+			ts.AddStage("@a2.success", func() {
 				m.EXPECT().A(a2, *a2, []byte{}).Return(0, nil)
 			}, "success")
 		}
