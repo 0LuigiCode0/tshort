@@ -27,57 +27,53 @@ var deferr = errors.New("hello")
 func TestFoo(t *testing.T) {
 	// объявление моковых классов и класса тестирования
 	m := mockexample.NewBoo[int](t)
-	ts := tshort.Init()
 	// объявление входящих данных и ожидаемых
 	a := new(int)
 	a2 := new(int)
 	var wantB int
 	var wantErr error
 
-	// разбиваем проверяемы код на блоки и записывает их связывая с последующими, тем самым создавая цепочки вызовов
-	ts.AddStage("@init", func() {
+	ts := tshort.Init(func(t *testing.T) {
 		wantB = 0
 		wantErr = nil
-	}, "четное", "нечетное")
+		m.Interceptor(t)
+	})
+	// разбиваем проверяемы код на блоки и записывает их связывая с последующими, тем самым создавая цепочки вызовов
+	ts.AddStage("четное", func() {
+		*a = 4
+	}, "a1.error", "@a1.success")
 	{
-		ts.AddStage("четное", func() {
-			*a = 4
-		}, "a1.error", "@a1.success")
-		{
-			ts.AddStage("a1.error", func() {
-				wantErr = deferr
-				m.EXPECT().A(a, *a, []byte{}).Return(0, deferr)
-			})
-
-			ts.AddStage("@a1.success", func() {
-				m.EXPECT().A(a, *a, []byte{}).Return(0, nil)
-			}, "success")
-		}
-
-		ts.AddStage("нечетное", func() {
-			*a = 3
-			*a2 = *a - 1
-		}, "a2.error", "@a2.success")
-		{
-			ts.AddStage("a2.error", func() {
-				wantErr = deferr
-				m.EXPECT().A(a2, *a2, []byte{}).Return(0, deferr)
-			})
-
-			ts.AddStage("@a2.success", func() {
-				m.EXPECT().A(a2, *a2, []byte{}).Return(0, nil)
-			}, "success")
-		}
-
-		ts.AddStage("success", func() {
-			m.EXPECT().B()
+		ts.AddStage("a1.error", func() {
+			wantErr = deferr
+			m.EXPECT().A(a, *a, []byte{}).Return(0, deferr)
 		})
+
+		ts.AddStage("@a1.success", func() {
+			m.EXPECT().A(a, *a, []byte{}).Return(0, nil)
+		}, "success")
 	}
+
+	ts.AddStage("нечетное", func() {
+		*a = 3
+		*a2 = *a - 1
+	}, "a2.error", "@a2.success")
+	{
+		ts.AddStage("a2.error", func() {
+			wantErr = deferr
+			m.EXPECT().A(a2, *a2, []byte{}).Return(0, deferr)
+		})
+
+		ts.AddStage("@a2.success", func() {
+			m.EXPECT().A(a2, *a2, []byte{}).Return(0, nil)
+		}, "success")
+	}
+
+	ts.AddStage("success", func() {
+		m.EXPECT().B()
+	})
 
 	ts.Run(t, func(t *testing.T) {
 		b, err := Foo(a, m)
 		tshort.Equal(t, []any{b, err}, []any{wantB, wantErr})
-
-		m.Interceptor(t)
 	})
 }

@@ -9,6 +9,7 @@ import (
 type TShort struct {
 	stages map[string]*stage
 	cases  []*_case
+	init   func(t *testing.T)
 }
 
 type stage struct {
@@ -22,8 +23,9 @@ type _case struct {
 	stages []func()
 }
 
-func Init() *TShort {
+func Init(init func(t *testing.T)) *TShort {
 	return &TShort{
+		init:   init,
 		stages: map[string]*stage{},
 		cases:  []*_case{},
 	}
@@ -45,11 +47,13 @@ func (ts *TShort) Run(t *testing.T, f func(t *testing.T)) {
 	ts.scan()
 
 	for _, _case := range ts.cases {
-		for _, stage := range _case.stages {
-			stage()
-		}
-
 		t.Run(_case.name, func(t *testing.T) {
+			ts.init(t)
+
+			for _, stage := range _case.stages {
+				stage()
+			}
+
 			rec(t, func() { f(t) })
 		})
 	}
