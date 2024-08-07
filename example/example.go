@@ -1,4 +1,4 @@
-package example
+package main
 
 //go:generate tshort --intgen=Atest
 type Boo[Data any] interface {
@@ -6,6 +6,7 @@ type Boo[Data any] interface {
 	B()
 }
 
+// тестируемая функция
 func Foo(a *int, boo Boo[int]) (b int, err error) {
 	if *a%2 == 0 {
 		if b, err = boo.A(a, *a, []byte{}); err != nil {
@@ -18,6 +19,6 @@ func Foo(a *int, boo Boo[int]) (b int, err error) {
 			return
 		}
 	}
-	b, err = boo.A(a, *a, []byte{})
+	boo.B()
 	return
 }

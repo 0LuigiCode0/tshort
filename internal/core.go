@@ -1,4 +1,4 @@
-package internal
+package tshort
 
 import (
 	"fmt"
@@ -29,11 +29,18 @@ func Init() *TShort {
 	}
 }
 
+// Добавляет новый стейдж
+//   - name - имя нового стейджа, если начинается с '@', то это имя пропускается при наименовании кейса
+//   - f - логика стейджа
+//   - next - набор последующих стейджей
 func (ts *TShort) AddStage(name string, f func(), next ...string) *TShort {
 	ts.stages[name] = &stage{f, next, true}
 	return ts
 }
 
+// Запускает тесты на каждый кейс
+//
+//	вызывает t.Run()
 func (ts *TShort) Run(t *testing.T, f func(t *testing.T)) {
 	ts.scan()
 
@@ -48,6 +55,7 @@ func (ts *TShort) Run(t *testing.T, f func(t *testing.T)) {
 	}
 }
 
+// Спасает от паник, возвращая трейс и ошибку на каждое падение
 func rec(t *testing.T, f func()) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -72,6 +80,7 @@ func rec(t *testing.T, f func()) {
 	f()
 }
 
+// Создает кейсы из цепочек стейджей, основываясь на из связях
 func (ts *TShort) scan() {
 	for _, v := range ts.stages {
 		ts.findRoot(v.next)
@@ -84,16 +93,26 @@ func (ts *TShort) scan() {
 	}
 }
 
+// Ищет корневые стейджи, далее от них пойдет построение цепочек
 func (ts *TShort) findRoot(next []string) {
 	for _, s := range next {
-		stage := ts.stages[s]
+		stage, ok := ts.stages[s]
+		if !ok {
+			panic("stage " + s + " not found")
+		}
 		stage.root = false
 
 		ts.findRoot(stage.next)
 	}
 }
 
+// Непосредственно стоит цепочки
+//
+//	если name начинается с '@', то это имя пропускается при наименовании кейса
 func (ts *TShort) buildPipelines(name string, stage *stage, pipelines []func()) {
+	if len(name) > 0 && name[0] == '@' {
+		name = ""
+	}
 	if len(stage.next) > 0 {
 		for _, nextName := range stage.next {
 			stage = ts.stages[nextName]
@@ -102,7 +121,11 @@ func (ts *TShort) buildPipelines(name string, stage *stage, pipelines []func()) 
 			copy(newpipe, pipelines)
 			newpipe = append(newpipe, stage.f)
 
-			ts.buildPipelines(Join("->", name, nextName), stage, newpipe)
+			if len(nextName) > 0 && nextName[0] == '@' {
+				ts.buildPipelines(name, stage, newpipe)
+			} else {
+				ts.buildPipelines(Join("->", name, nextName), stage, newpipe)
+			}
 		}
 	} else {
 		ts.cases = append(ts.cases, &_case{name, pipelines})

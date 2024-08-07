@@ -1,4 +1,4 @@
-package internal
+package tshort
 
 import (
 	"log"
@@ -7,6 +7,9 @@ import (
 
 type cycler map[uintptr]reflect.Value
 
+// Полностью копирует передаваемые данные
+//
+// каждый элемент переводится в reflect.value, после на основе типа создается новый value в который посредством метода set перезаписываются данные, как итог при помощи reflect.Interface() получаем объект типа any который приводим к типу дженерика
 func Copy[data any](v data) data {
 	cycle := cycler{}
 	value, err := copyraiter(cycle, reflect.ValueOf(v))

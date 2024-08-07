@@ -1,4 +1,4 @@
-package internal
+package tshort
 
 import (
 	"log"
@@ -8,7 +8,8 @@ import (
 	"text/template"
 )
 
-func Generate(f *file, outDir, outFileName, outPkg string) {
+// Генерирует фаил мока изходя из результатов scan()
+func generate(f *file, outDir, outFileName, outPkg string) {
 	err := os.Mkdir(outDir, os.ModeDir)
 	if err != nil && !os.IsExist(err) {
 		log.Fatal(err)
@@ -43,11 +44,13 @@ func (b *base) String(incArg bool) string {
 	return out
 }
 
+// проверяет необходим ли конкретный импорт
 func (f *file) isInclude(key string) bool {
 	_, ok := f.ImportsInclude[key]
 	return ok
 }
 
+// печатает блок дженериков
 func generic(gencs []*base, incType bool) (out string) {
 	out = params(gencs, incType)
 	if len(gencs) > 0 {
@@ -55,6 +58,8 @@ func generic(gencs []*base, incType bool) (out string) {
 	}
 	return
 }
+
+// печатает перечисление параметров
 func params(params []*base, incType bool) string {
 	paramsList := make([]string, 0, len(params))
 	for _, param := range params {

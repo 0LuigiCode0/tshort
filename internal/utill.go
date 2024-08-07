@@ -1,4 +1,4 @@
-package internal
+package tshort
 
 import (
 	"fmt"
@@ -33,9 +33,8 @@ func Join[data ~string](sep data, ss ...data) string {
 	}
 
 	b := strings.Builder{}
-	b.Grow(l)
-
 	if len(ss) > 0 {
+		b.Grow(l)
 		b.WriteString(string(ss[0]))
 	} else {
 		return ""

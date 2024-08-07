@@ -1,4 +1,4 @@
-package internal
+package tshort
 
 import (
 	"go/ast"
@@ -36,7 +36,7 @@ type _func struct {
 	Out      []*base
 }
 
-func Scan(fileName string, intNames map[string]struct{}) *file {
+func scan(fileName string, intNames map[string]struct{}) *file {
 	fs := token.NewFileSet()
 	raw, err := os.ReadFile(fileName)
 	if err != nil {
