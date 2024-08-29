@@ -1,9 +1,7 @@
 package main
 
-import (
-	tshort "github.com/0LuigiCode0/tshort/internal"
-)
+import tgen "github.com/0LuigiCode0/tshort/internal/gen"
 
 func main() {
-	tshort.Execute()
+	tgen.Execute()
 }

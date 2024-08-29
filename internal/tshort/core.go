@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"runtime"
 	"testing"
+
+	tutils "github.com/0LuigiCode0/tshort/internal/utils"
 )
 
 type TShort struct {
 	stages map[string]*stage
-	cases  []*_case
 	init   func(t *testing.T)
+	cases  []*_case
 }
 
 type stage struct {
@@ -128,7 +130,7 @@ func (ts *TShort) buildPipelines(name string, stage *stage, pipelines []func()) 
 			if len(nextName) > 0 && nextName[0] == '@' {
 				ts.buildPipelines(name, stage, newpipe)
 			} else {
-				ts.buildPipelines(Join("->", name, nextName), stage, newpipe)
+				ts.buildPipelines(tutils.Join("->", name, nextName), stage, newpipe)
 			}
 		}
 	} else {

@@ -1,11 +1,12 @@
-package main
+package example
 
 import (
 	"errors"
 	"testing"
 
-	mockexample "github.com/0LuigiCode0/tshort/example/mocks"
-	tshort "github.com/0LuigiCode0/tshort/internal"
+	examplemock "github.com/0LuigiCode0/tshort/example/mocks"
+	"github.com/0LuigiCode0/tshort/internal/tshort"
+	tutils "github.com/0LuigiCode0/tshort/internal/utils"
 )
 
 var deferr = errors.New("hello")
@@ -26,7 +27,7 @@ var deferr = errors.New("hello")
 
 func TestFoo(t *testing.T) {
 	// объявление моковых классов и класса тестирования
-	m := mockexample.NewBoo[int](t)
+	m := examplemock.NewDoo(t)
 	// объявление входящих данных и ожидаемых
 	a := new(int)
 	a2 := new(int)
@@ -74,6 +75,6 @@ func TestFoo(t *testing.T) {
 
 	ts.Run(t, func(t *testing.T) {
 		b, err := Foo(a, m)
-		tshort.Equal(t, []any{b, err}, []any{wantB, wantErr})
+		tutils.Equal(t, []any{b, err}, []any{wantB, wantErr})
 	})
 }
