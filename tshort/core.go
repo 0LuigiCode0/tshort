@@ -124,7 +124,10 @@ func (ts *TShort) buildPipelines(name string, stage *stage, pipelines []func()) 
 
 	if len(stage.next) > 0 {
 		for _, nextName := range stage.next {
-			stage = ts.stages[nextName]
+			stage, ok := ts.stages[nextName]
+			if !ok {
+				panic("stage " + nextName + " not found in case " + name)
+			}
 
 			newpipe := make([]func(), len(pipelines), len(pipelines)+1)
 			copy(newpipe, pipelines)

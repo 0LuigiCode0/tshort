@@ -43,7 +43,7 @@ func TestFoo(t *testing.T) {
 	// разбиваем проверяемы код на блоки и записывает их связывая с последующими, тем самым создавая цепочки вызовов
 	ts.AddStage("четное", func() {
 		*a = 4
-	}, "@a1.error", "@a1.@success")
+	}, "@a1.error", "a1.@success")
 	{
 		ts.AddStage("@a1.error", func() {
 			wantErr = deferr
