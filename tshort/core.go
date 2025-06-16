@@ -119,7 +119,6 @@ func (ts *TShort) buildPipelines(name string, stage *stage, pipelines []func()) 
 			newNames = append(newNames, v)
 		}
 	}
-	fmt.Println(len(names), len(newNames), name)
 	if len(names) > len(newNames) {
 		name = tutils.Join("", name, "[", tutils.Join(ts.sep, newNames...), "]")
 	} else {
