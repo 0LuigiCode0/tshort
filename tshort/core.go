@@ -34,6 +34,7 @@ func Init(init func(t *testing.T), sep string, rootStage ...string) *TShort {
 		stages: map[string]*stage{},
 		cases:  []*_case{},
 		root:   rootStage,
+		sep:    sep,
 	}
 }
 
@@ -112,17 +113,14 @@ func (ts *TShort) findRoot(s string) *stage {
 //	если name начинается с '@', то это имя пропускается при наименовании кейса
 func (ts *TShort) buildPipelines(name string, stage *stage, pipelines []func()) {
 	names := strings.Split(stage.name, ts.sep)
-	stageName := stage.name
-	if len(names) > 1 {
-		newNames := make([]string, 0, len(names))
-		for _, v := range names {
-			if len(v) > 0 && v[0] != '@' {
-				newNames = append(newNames, v)
-			}
+	newNames := make([]string, 0, len(names))
+	for _, v := range names {
+		fmt.Print(v)
+		if len(v) > 0 && v[0] != '@' {
+			newNames = append(newNames, v)
 		}
-		stageName = tutils.Join(ts.sep, newNames...)
 	}
-	name = tutils.Join("->", name, stageName)
+	name = tutils.Join("->", name, tutils.Join(ts.sep, newNames...))
 
 	if len(stage.next) > 0 {
 		for _, nextName := range stage.next {
