@@ -15,7 +15,7 @@ import (
 	"strconv"
 	"strings"
 
-	tutils "github.com/0LuigiCode0/tshort/internal/utils"
+	tutils "github.com/0LuigiCode0/tshort/utils"
 )
 
 type scanConf struct {

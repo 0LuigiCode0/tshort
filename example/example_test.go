@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	examplemock "github.com/0LuigiCode0/tshort/example/mocks"
-	"github.com/0LuigiCode0/tshort/internal/tshort"
-	tutils "github.com/0LuigiCode0/tshort/internal/utils"
+	"github.com/0LuigiCode0/tshort/tshort"
+	tutils "github.com/0LuigiCode0/tshort/utils"
 )
 
 var deferr = errors.New("hello")

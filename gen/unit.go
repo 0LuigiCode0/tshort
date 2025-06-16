@@ -1,6 +1,6 @@
 package tgen
 
-import tutils "github.com/0LuigiCode0/tshort/internal/utils"
+import tutils "github.com/0LuigiCode0/tshort/utils"
 
 type iunit interface {
 	String() string
