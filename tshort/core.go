@@ -115,12 +115,16 @@ func (ts *TShort) buildPipelines(name string, stage *stage, pipelines []func()) 
 	names := strings.Split(stage.name, ts.sep)
 	newNames := make([]string, 0, len(names))
 	for _, v := range names {
-		fmt.Print(v)
 		if len(v) > 0 && v[0] != '@' {
 			newNames = append(newNames, v)
 		}
 	}
-	name = tutils.Join("->", name, tutils.Join(ts.sep, newNames...))
+	fmt.Println(len(names), len(newNames), name)
+	if len(names) > len(newNames) {
+		name = tutils.Join("", name, "[", tutils.Join(ts.sep, newNames...), "]")
+	} else {
+		name = tutils.Join("->", name, tutils.Join(ts.sep, newNames...))
+	}
 
 	if len(stage.next) > 0 {
 		for _, nextName := range stage.next {
