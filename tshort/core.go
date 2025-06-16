@@ -3,6 +3,7 @@ package tshort
 import (
 	"fmt"
 	"runtime"
+	"strings"
 	"testing"
 
 	tutils "github.com/0LuigiCode0/tshort/utils"
@@ -12,12 +13,14 @@ type TShort struct {
 	stages map[string]*stage
 	init   func(t *testing.T)
 	cases  []*_case
+	root   []string
+	sep    string
 }
 
 type stage struct {
+	name string
 	f    func()
 	next []string
-	root bool
 }
 
 type _case struct {
@@ -25,11 +28,12 @@ type _case struct {
 	stages []func()
 }
 
-func Init(init func(t *testing.T)) *TShort {
+func Init(init func(t *testing.T), sep string, rootStage ...string) *TShort {
 	return &TShort{
 		init:   init,
 		stages: map[string]*stage{},
 		cases:  []*_case{},
+		root:   rootStage,
 	}
 }
 
@@ -38,7 +42,7 @@ func Init(init func(t *testing.T)) *TShort {
 //   - f - логика стейджа
 //   - next - набор последующих стейджей
 func (ts *TShort) AddStage(name string, f func(), next ...string) *TShort {
-	ts.stages[name] = &stage{f, next, true}
+	ts.stages[name] = &stage{name, f, next}
 	return ts
 }
 
@@ -88,50 +92,47 @@ func rec(t *testing.T, f func()) {
 
 // Создает кейсы из цепочек стейджей, основываясь на из связях
 func (ts *TShort) scan() {
-	for _, v := range ts.stages {
-		ts.findRoot(v.next)
-	}
-
-	for name, stage := range ts.stages {
-		if stage.root {
-			ts.buildPipelines(name, stage, []func(){stage.f})
-		}
+	for _, name := range ts.root {
+		stage := ts.findRoot(name)
+		ts.buildPipelines("", stage, []func(){stage.f})
 	}
 }
 
 // Ищет корневые стейджи, далее от них пойдет построение цепочек
-func (ts *TShort) findRoot(next []string) {
-	for _, s := range next {
-		stage, ok := ts.stages[s]
-		if !ok {
-			panic("stage " + s + " not found")
-		}
-		stage.root = false
-
-		ts.findRoot(stage.next)
+func (ts *TShort) findRoot(s string) *stage {
+	stage, ok := ts.stages[s]
+	if !ok {
+		panic("stage " + s + " not found")
 	}
+	return stage
 }
 
 // Непосредственно стоит цепочки
 //
 //	если name начинается с '@', то это имя пропускается при наименовании кейса
 func (ts *TShort) buildPipelines(name string, stage *stage, pipelines []func()) {
-	if len(name) > 0 && name[0] == '@' {
-		name = ""
+	names := strings.Split(stage.name, ts.sep)
+	stageName := stage.name
+	if len(names) > 1 {
+		newNames := make([]string, 0, len(names))
+		for _, v := range names {
+			if len(v) > 0 && v[0] != '@' {
+				newNames = append(newNames, v)
+			}
+		}
+		stageName = tutils.Join(ts.sep, newNames...)
 	}
+	name = tutils.Join("->", name, stageName)
+
 	if len(stage.next) > 0 {
 		for _, nextName := range stage.next {
 			stage = ts.stages[nextName]
 
-			newpipe := make([]func(), len(pipelines))
+			newpipe := make([]func(), len(pipelines), len(pipelines)+1)
 			copy(newpipe, pipelines)
 			newpipe = append(newpipe, stage.f)
 
-			if len(nextName) > 0 && nextName[0] == '@' {
-				ts.buildPipelines(name, stage, newpipe)
-			} else {
-				ts.buildPipelines(tutils.Join("->", name, nextName), stage, newpipe)
-			}
+			ts.buildPipelines(name, stage, newpipe)
 		}
 	} else {
 		ts.cases = append(ts.cases, &_case{name, pipelines})
