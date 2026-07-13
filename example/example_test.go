@@ -4,78 +4,55 @@ import (
 	"errors"
 	"testing"
 
-	examplemock "github.com/0LuigiCode0/tshort/example/mocks"
+	"github.com/0LuigiCode0/tshort"
+	"github.com/0LuigiCode0/tshort/example/mocks"
 	"github.com/0LuigiCode0/tshort/example/test1"
-	"github.com/0LuigiCode0/tshort/tshort"
-	tutils "github.com/0LuigiCode0/tshort/utils"
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 )
 
 var deferr = errors.New("hello")
 
-// Получаем такой вывод в консоль
-//
-// === RUN   TestFoo
-// === RUN   TestFoo/четное->a1.error
-// === RUN   TestFoo/четное->success
-// === RUN   TestFoo/нечетное->a2.error
-// === RUN   TestFoo/нечетное->success
-// --- PASS: TestFoo (0.00s)
-//     --- PASS: TestFoo/четное->a1.error (0.00s)
-//     --- PASS: TestFoo/четное->success (0.00s)
-//     --- PASS: TestFoo/нечетное->a2.error (0.00s)
-//     --- PASS: TestFoo/нечетное->success (0.00s)
-// PASS
-
 func TestFoo(t *testing.T) {
 	// объявление моковых классов и класса тестирования
-	m := examplemock.NewDoo(t)
+	m := mocks.NewMockDoo(gomock.NewController(t))
 	// объявление входящих данных и ожидаемых
 	a := new(int)
 	a2 := new(int)
 	var wantB test1.INT
 	var wantErr error
 
-	ts := tshort.Init(func(t *testing.T) {
+	tshort.Run(t, func(t *testing.T, c tshort.Case) {
 		wantB = 0
 		wantErr = nil
-		m.Interceptor(t)
-	}, ".", "четное", "нечетное")
-	// разбиваем проверяемы код на блоки и записывает их связывая с последующими, тем самым создавая цепочки вызовов
-	ts.AddStage("четное", func() {
-		*a = 4
-	}, "@a1.error", "@a1.success")
-	{
-		ts.AddStage("@a1.error", func() {
-			wantErr = deferr
-			m.EXPECT().A(a, *a, []byte{}).Return(0, deferr)
+
+		c.CASE(func(t *testing.T, c tshort.Case) {
+			*a = 4
+
+			c.BREAK("Test 1: четное error", func(t *testing.T, c tshort.Case) {
+				wantErr = deferr
+				m.EXPECT().A(a, *a, []byte{}).Return(0, deferr)
+			})
+			c.BREAK("Test 2: четное success", func(t *testing.T, c tshort.Case) {
+				m.EXPECT().A(a, *a, []byte{}).Return(0, nil)
+				m.EXPECT().B()
+			})
 		})
+		c.CASE(func(t *testing.T, c tshort.Case) {
+			*a = 3
+			*a2 = *a - 1
 
-		ts.AddStage("@a1.success", func() {
-			m.EXPECT().A(a, *a, []byte{}).Return(0, nil)
-		}, "success")
-	}
-
-	ts.AddStage("нечетное", func() {
-		*a = 3
-		*a2 = *a - 1
-	}, "@a2.error", "@a2.success")
-	{
-		ts.AddStage("@a2.error", func() {
-			wantErr = deferr
-			m.EXPECT().A(a2, *a2, []byte{}).Return(0, deferr)
+			c.BREAK("Test 3: нечетное error", func(t *testing.T, c tshort.Case) {
+				wantErr = deferr
+				m.EXPECT().A(a2, *a2, []byte{}).Return(0, deferr)
+			})
+			c.BREAK("Test 4: нечетное success", func(t *testing.T, c tshort.Case) {
+				m.EXPECT().A(a2, *a2, []byte{}).Return(0, nil)
+				m.EXPECT().B()
+			})
 		})
-
-		ts.AddStage("@a2.success", func() {
-			m.EXPECT().A(a2, *a2, []byte{}).Return(0, nil)
-		}, "success")
-	}
-
-	ts.AddStage("success", func() {
-		m.EXPECT().B()
-	})
-
-	ts.Run(t, func(t *testing.T) {
+	}, func(t *testing.T) {
 		b, err := Foo(a, m)
-		tutils.Equal(t, []any{b, err}, []any{wantB, wantErr})
+		assert.Equal(t, []any{b, err}, []any{wantB, wantErr})
 	})
 }
